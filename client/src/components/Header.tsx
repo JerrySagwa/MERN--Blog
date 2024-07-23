@@ -43,20 +43,18 @@ const Header = () => {
           <FaMoon />
         </Button>
         <Link to='/sign-in'>
-          <Button gradientDuoTone='purpleToBlue' className='rounded-lg'>
+          <Button gradientDuoTone='purpleToBlue' className='rounded-lg' outline>
             Sign In
           </Button>
         </Link>
         <Navbar.Toggle />
       </div>
       <Navbar.Collapse>
-        {
-          Links.map(([k, link]) => 
-            <Navbar.Link active={path === link} as="div" key={k}>
-              <Link to={link}>{k}</Link>
-            </Navbar.Link>
-          )
-        }
+        {Links.map(([k, link]) => (
+          <Navbar.Link active={path === link} as='div' key={k}>
+            <Link to={link}>{k}</Link>
+          </Navbar.Link>
+        ))}
       </Navbar.Collapse>
     </Navbar>
   );
