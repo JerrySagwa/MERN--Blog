@@ -5,7 +5,6 @@ import authRoutes from './routes/auth.route.js';
 
 const { MONGODB_URL, PORT } = process.env;
 
-const app = express();
 mongoose
   .connect(MONGODB_URL)
   .then(() => {
@@ -15,10 +14,20 @@ mongoose
     console.log(e);
   });
 
+const app = express();
+app.use(express.json()); // 解析 JSON 格式的请求体
+app.use(express.urlencoded({ extended: true })); // 解析 URL 编码的请求体
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-app.use(express.json()); // 解析 JSON 格式的请求体
-app.use(express.urlencoded({ extended: true })); // 解析 URL 编码的请求体
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message
+  })
+})
