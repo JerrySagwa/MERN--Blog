@@ -1,10 +1,39 @@
 import { Button, Label, TextInput } from 'flowbite-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const SignUp = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    email: '',
+  });
+
+  const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("Submit ...");
+    
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      console.log(data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  // console.log(formData);
+
   return (
-<div className='min-h-screen mt-20'>
+    <div className='min-h-screen mt-20'>
       <div className='flex flex-col p-3 max-w-3xl mx-auto md:flex-row gap-4 md:items-center'>
         {/* left */}
         <div className='flex-1'>
@@ -24,30 +53,48 @@ const SignUp = () => {
         </div>
         {/* right */}
         <div className='flex-1'>
-          <form className='flex flex-col gap-y-4'>
+          <form className='flex flex-col gap-y-4' onSubmit={submitHandler}>
             <div>
               <Label>Your username</Label>
-              <TextInput type='text' placeholder='username' id='username'/>
+              <TextInput
+                type='text'
+                placeholder='username'
+                id='username'
+                onChange={changeHandler}
+              />
             </div>
             <div>
               <Label>Your email</Label>
-              <TextInput type='text' placeholder='name@company.com' id='email'/>
+              <TextInput
+                type='email'
+                placeholder='name@company.com'
+                id='email'
+                onChange={changeHandler}
+              />
             </div>
             <div>
               <Label>Your password</Label>
-              <TextInput type='text' placeholder='password' id='password'/>
+              <TextInput
+                type='password'
+                placeholder='password'
+                id='password'
+                onChange={changeHandler}
+              />
             </div>
-            <Button gradientDuoTone="purpleToPink" type='submit'>
+            <Button gradientDuoTone='purpleToPink' type='submit'>
               Sign Up
             </Button>
             <div>
-              Already have an account? <Link to='/sign-in'><span className='text-blue-400'>Sign In</span></Link>
+              Already have an account?{' '}
+              <Link to='/sign-in'>
+                <span className='text-blue-400'>Sign In</span>
+              </Link>
             </div>
           </form>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;
