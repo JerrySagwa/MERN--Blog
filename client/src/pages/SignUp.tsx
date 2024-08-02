@@ -1,6 +1,6 @@
-import { Button, Label, TextInput } from 'flowbite-react';
+import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -8,25 +8,39 @@ const SignUp = () => {
     password: '',
     email: '',
   });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const changeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Submit ...");
-    
+    const { username, password, email } = formData;
+    if (!username || !password || !email) {
+      setErrorMessage('Please fill out all the fields!');
+      return;
+    }
+
     try {
+      setLoading(true);
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      console.log(data);
+      if (data.success === false) {
+        setErrorMessage('Duplicate username or email!');
+      } else {
+        navigate('/sign-in')
+      }
     } catch (e) {
-      console.log(e);
+      setErrorMessage('Unknown Error~');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,8 +95,18 @@ const SignUp = () => {
                 onChange={changeHandler}
               />
             </div>
-            <Button gradientDuoTone='purpleToPink' type='submit'>
-              Sign Up
+            <Button
+              gradientDuoTone='purpleToPink'
+              type='submit'
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span>Loading ...</span> <Spinner size={'sm'} />
+                </>
+              ) : (
+                'Sign Up'
+              )}
             </Button>
             <div>
               Already have an account?{' '}
@@ -90,6 +114,7 @@ const SignUp = () => {
                 <span className='text-blue-400'>Sign In</span>
               </Link>
             </div>
+            {errorMessage && <Alert color='failure'>{errorMessage}</Alert>}
           </form>
         </div>
       </div>
